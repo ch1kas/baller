@@ -1,7 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { Exclude } from 'class-transformer';
 import { Role } from '../roles/enums/roles';
+import { ExpiredAccessTokenEntity } from '../auth/models/expiredAccessTokens.entity';
+import { RefreshTokenEntity } from '../auth/models/refreshTokens.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity extends BaseEntity {
@@ -30,4 +32,18 @@ export class UserEntity extends BaseEntity {
     default: Role.USER,
   })
   roles: Role[];
+
+  @OneToMany(
+    () => ExpiredAccessTokenEntity,
+    (expiredAccessToken) => expiredAccessToken.user,
+    { onDelete: 'CASCADE' },
+  )
+  @Exclude()
+  expiredAccessTokens: ExpiredAccessTokenEntity[];
+
+  @OneToMany(() => RefreshTokenEntity, (refreshToken) => refreshToken.user, {
+    onDelete: 'CASCADE',
+  })
+  @Exclude()
+  refreshTokens: RefreshTokenEntity[];
 }

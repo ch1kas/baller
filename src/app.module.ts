@@ -1,13 +1,30 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import ormconfig from './ormconfig';
 import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
+import { AccessTokenAuthGuard } from './modules/auth/guards/accessTokenAuth.guard';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(ormconfig), UserModule],
+  imports: [
+    TypeOrmModule.forRoot(ormconfig),
+    ConfigModule.forRoot({
+      envFilePath: `.${process.env.NODE_ENV}.env`,
+    }),
+    UserModule,
+    AuthModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useExisting: AccessTokenAuthGuard },
+    { provide: APP_PIPE, useExisting: ValidationPipe },
+    AccessTokenAuthGuard,
+    ValidationPipe,
+  ],
 })
 export class AppModule {}
