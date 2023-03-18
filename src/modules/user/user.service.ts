@@ -59,6 +59,7 @@ export class UserService {
     user.full_name = createUserDto.full_name;
     user.email = createUserDto.email;
     user.password = await this.generateHashPassword(createUserDto.password);
+    user.confirmation_token = createUserDto.confirmationToken;
     return await this.userRepository.save(user);
   }
 
@@ -71,6 +72,7 @@ export class UserService {
     user.password = await this.generateHashPassword(
       createByRoleUserDto.password,
     );
+    user.confirmation_token = createByRoleUserDto.confirmationToken;
     user.roles = [createByRoleUserDto.role];
     return await this.userRepository.save(user);
   }
@@ -101,9 +103,21 @@ export class UserService {
     return user;
   }
 
+  async saveUser(user: UserEntity) {
+    await this.userRepository.save(user);
+  }
+
   async findByEmail(email: string): Promise<UserEntity> {
     return await this.userRepository.findOne({
       where: { email: email },
+    });
+  }
+
+  async findByConfirmationToken(
+    confirmationToken: string,
+  ): Promise<UserEntity> {
+    return await this.userRepository.findOne({
+      where: { confirmation_token: confirmationToken },
     });
   }
 

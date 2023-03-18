@@ -1,10 +1,13 @@
 import {
   BadRequestException,
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Injectable,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import { v4 as uuidv4 } from 'uuid';
 import { Repository } from 'typeorm';
 import { Role } from '../roles/enums/roles';
 import { CreateUserDto } from '../user/dto/createUser.dto';
@@ -15,6 +18,7 @@ import { UserService } from '../user/user.service';
 import { ExpiredAccessTokenEntity } from './models/expiredAccessTokens.entity';
 import { RefreshTokenEntity } from './models/refreshTokens.entity';
 import { Tokens } from './types/tokens.type';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -23,19 +27,46 @@ export class AuthService {
     private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
     @InjectRepository(ExpiredAccessTokenEntity)
     private readonly expiredAccessTokenRepository: Repository<ExpiredAccessTokenEntity>,
-    private readonly usersService: UserService,
+    private readonly emailService: EmailService,
+    private usersService: UserService,
     private jwtService: JwtService,
   ) {}
 
-  async signUp(userDto: CreateUserDto): Promise<UserEntity> {
-    await this.usersService.validateEmail(userDto.email);
-    // createUserDto.confirmationToken = uuidv4();
-    return await this.usersService.create({ ...userDto });
-    // await this.sendConfirmationEmail(
-    //   userDto.email,
-    //   userDto.confirmationToken,
-    // );
-    // return { message: 'Successfully signed up! We sent confirmation email' };
+  async signUp(createUserDto: CreateUserDto) {
+    await this.usersService.validateEmail(createUserDto.email);
+    createUserDto.confirmationToken = uuidv4();
+    await this.usersService.create({ ...createUserDto });
+    await this.sendConfirmationEmail(
+      createUserDto.email,
+      createUserDto.confirmationToken,
+    );
+    return { message: 'Successfully signed up! We sent confirmation email' };
+  }
+
+  async sendConfirmationEmail(
+    to: string,
+    confirmationToken: string,
+  ): Promise<any> {
+    const CONFIRM_URL =
+      process.env.API_URL + '/api/auth/confirmation?confirmation_token=';
+    // const emailContent = `Please confirm your account via this link: ${CONFIRM_URL}${confirmationToken}`;
+    // const emailDescription = 'Email confirmation';
+    const link = `${CONFIRM_URL}${confirmationToken}`;
+    await this.emailService.sendContactForm(link, to);
+  }
+
+  async confirmEmail(confirmationToken: string) {
+    const user = await this.usersService.findByConfirmationToken(
+      confirmationToken,
+    );
+    if (!user)
+      throw new HttpException(
+        'Invalid confirmation token',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    user.confirmed_at = new Date(Date.now());
+    await this.usersService.saveUser(user);
+    return '<div>Email successfully confirmed! Now you can sign in.</div>';
   }
 
   async signIn(userDto: SignInUserDto): Promise<Tokens> {
@@ -59,12 +90,12 @@ export class AuthService {
       user,
     );
     if (user && isPasswordsEqual) {
-      //   if (user.confirmed_at) {
-      //     return user;
-      //   }
-      //   throw new ForbiddenException({
-      //     message: 'Confirm your account through your email',
-      //   });
+      if (user.confirmed_at) {
+        return user;
+      }
+      throw new ForbiddenException({
+        message: 'Confirm your account through your email',
+      });
       return user;
     }
     throw new ForbiddenException({
@@ -84,12 +115,12 @@ export class AuthService {
       user,
     );
     if (user && isPasswordsEqual) {
-      //   if (user.confirmed_at) {
-      //     return user;
-      //   }
-      //   throw new ForbiddenException({
-      //     message: 'Confirm your account through your email',
-      //   });
+      if (user.confirmed_at) {
+        return user;
+      }
+      throw new ForbiddenException({
+        message: 'Confirm your account through your email',
+      });
       return user;
     }
     throw new ForbiddenException({

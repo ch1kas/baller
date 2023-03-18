@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { AccessTokenAuthGuard } from './modules/auth/guards/accessTokenAuth.guard';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AccessTokenAuthGuard } from './modules/auth/guards/accessTokenAuth.guar
     ConfigModule.forRoot({
       envFilePath: `.${process.env.NODE_ENV}.env`,
     }),
+    EmailModule,
     UserModule,
     AuthModule,
   ],

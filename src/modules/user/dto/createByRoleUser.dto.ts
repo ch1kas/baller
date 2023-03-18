@@ -26,4 +26,6 @@ export class CreateByRoleUserDto {
   @IsNotEmpty()
   @MinLength(4)
   role: Role;
+
+  confirmationToken?: string;
 }

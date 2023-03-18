@@ -21,4 +21,6 @@ export class CreateUserDto {
   @MinLength(6)
   @MaxLength(20)
   password: string;
+
+  confirmationToken?: string;
 }

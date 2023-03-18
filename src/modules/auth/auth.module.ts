@@ -9,6 +9,7 @@ import { ExpiredAccessTokenEntity } from './models/expiredAccessTokens.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccessTokenStrategy } from './strategies/access-token.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
       session: false,
     }),
     UserModule,
+    EmailModule,
     TypeOrmModule.forFeature([RefreshTokenEntity, ExpiredAccessTokenEntity]),
   ],
   controllers: [AuthController],

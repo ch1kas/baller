@@ -7,9 +7,11 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { GetCurrentUserId } from '../auth/decorators/getCurrentUserId.decorator';
+import { AdminAuthGuard } from '../auth/guards/adminAuth.guard';
 import { CreateUserDto } from './dto/createUser.dto';
 import { PaginationParams } from './dto/paginationParams.dto';
 import { PaginationResponseDto } from './dto/pagintationResponse.dto';
@@ -21,6 +23,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('admin/users')
+  @UseGuards(AdminAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   async getAllUsers(
     @Query() query: PaginationParams,
@@ -37,18 +40,21 @@ export class UserController {
   }
 
   @Get('admin/users/:id')
+  @UseGuards(AdminAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   async getUserById(@Param('id') id: string): Promise<UserEntity> {
     return await this.userService.getOne(id);
   }
 
   @Delete('admin/users/delete')
+  @UseGuards(AdminAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   async deletManyUsers(@Body() { ids }: any): Promise<{ message: string }> {
     return await this.userService.deleteMany(ids);
   }
 
   @Delete('admin/users/:id')
+  @UseGuards(AdminAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   async deleteUserById(@Param('id') id: string): Promise<{ message: string }> {
     return await this.userService.deleteOne(id);
