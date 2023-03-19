@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { ProductEntity } from '../product/product.entity';
 
 @Entity({ name: 'categories' })
 export class CategoryEntity extends BaseEntity {
@@ -13,5 +14,8 @@ export class CategoryEntity extends BaseEntity {
   description: string;
 
   @Column({ default: 0 })
-  posts_count: number;
+  product_count: number;
+
+  @ManyToMany(() => ProductEntity, (product) => product.categories)
+  products: ProductEntity[];
 }
