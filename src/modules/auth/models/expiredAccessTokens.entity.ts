@@ -1,5 +1,5 @@
 import { BaseEntity } from 'src/modules/base.entity';
-import { UserEntity } from 'src/modules/user/user.entity';
+import { UserEntity } from 'src/modules/user/models/user.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity('expired_access_tokens')

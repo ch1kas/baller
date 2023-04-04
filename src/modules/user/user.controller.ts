@@ -15,7 +15,7 @@ import { AdminAuthGuard } from '../auth/guards/adminAuth.guard';
 import { CreateUserDto } from './dto/createUser.dto';
 import { PaginationParams } from './dto/paginationParams.dto';
 import { PaginationResponseDto } from './dto/pagintationResponse.dto';
-import { UserEntity } from './user.entity';
+import { UserEntity } from './models/user.entity';
 import { UserService } from './user.service';
 
 @Controller()

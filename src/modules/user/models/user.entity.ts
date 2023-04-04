@@ -1,10 +1,10 @@
 import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
-import { BaseEntity } from '../base.entity';
+import { BaseEntity } from '../../base.entity';
 import { Exclude } from 'class-transformer';
-import { Role } from '../roles/enums/roles';
-import { ExpiredAccessTokenEntity } from '../auth/models/expiredAccessTokens.entity';
-import { RefreshTokenEntity } from '../auth/models/refreshTokens.entity';
-import { ProductEntity } from '../product/product.entity';
+import { Role } from '../../roles/enums/roles';
+import { ExpiredAccessTokenEntity } from '../../auth/models/expiredAccessTokens.entity';
+import { RefreshTokenEntity } from '../../auth/models/refreshTokens.entity';
+import { ProductEntity } from '../../product/models/product.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity extends BaseEntity {

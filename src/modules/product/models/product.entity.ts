@@ -1,6 +1,14 @@
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
-import { BaseEntity } from '../base.entity';
-import { CategoryEntity } from '../category/category.entity';
+import { ImageEntity } from 'src/modules/filemanager/models/image.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  OneToOne,
+} from 'typeorm';
+import { BaseEntity } from '../../base.entity';
+import { CategoryEntity } from '../../category/models/category.entity';
 
 @Entity({ name: 'products' })
 export class ProductEntity extends BaseEntity {
@@ -28,4 +36,9 @@ export class ProductEntity extends BaseEntity {
   @ManyToMany(() => CategoryEntity, (category) => category.products)
   @JoinTable()
   categories: CategoryEntity[];
+
+  @OneToOne(() => ImageEntity, (image) => image.product, {
+    eager: true,
+  })
+  image: ImageEntity;
 }

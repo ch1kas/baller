@@ -2,12 +2,13 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import slugify from 'slugify';
 import { getRepository, Repository } from 'typeorm';
-import { CategoryEntity } from '../category/category.entity';
-import { UserEntity } from '../user/user.entity';
+import { CategoryEntity } from '../category/models/category.entity';
+import { ImageEntity } from '../filemanager/models/image.entity';
+import { UserEntity } from '../user/models/user.entity';
 import { CreateProductDto } from './dto/createProduct.dto';
 import { ProductResponseDto } from './dto/productResponse.dto';
 import { UpdateProductDto } from './dto/updateProduct.dto';
-import { ProductEntity } from './product.entity';
+import { ProductEntity } from './models/product.entity';
 
 @Injectable()
 export class ProductService {
@@ -18,6 +19,8 @@ export class ProductService {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(CategoryEntity)
     private readonly categoryRepository: Repository<CategoryEntity>,
+    @InjectRepository(ImageEntity)
+    private readonly imageRepository: Repository<ImageEntity>,
   ) {}
 
   async createProduct(
@@ -41,7 +44,9 @@ export class ProductService {
     await this.isProductExist(id);
 
     const product = await this.productRepository.findOne(id);
-    console.log(updateProductDto);
+    if (updateProductDto.image && product.image) {
+      await this.imageRepository.remove(product.image);
+    }
 
     Object.assign(product, updateProductDto);
     if (updateProductDto.categories) {
@@ -61,17 +66,9 @@ export class ProductService {
   ): Promise<ProductResponseDto<ProductEntity>> {
     const queryBuilder =
       getRepository(ProductEntity).createQueryBuilder('products');
-    if (query.category_id) {
-      const category = await this.categoryRepository.findOne({
-        id: query.category_id,
-      });
-      queryBuilder.innerJoin(
-        'products.categories',
-        'category',
-        'category.id IN (:...ids)',
-        { ids: [category.id] },
-      );
-    }
+    queryBuilder
+      .leftJoinAndSelect('products.image', 'image')
+      .leftJoinAndSelect('products.categories', 'category');
     if (query.limit) {
       queryBuilder.limit(+query.limit);
     }
@@ -89,6 +86,7 @@ export class ProductService {
     return await getRepository(CategoryEntity)
       .createQueryBuilder('categories')
       .leftJoinAndSelect('categories.products', 'products')
+      .leftJoinAndSelect('products.image', 'image')
       .where('categories.slug = :slug', { slug: slug })
       .getMany();
   }
@@ -96,6 +94,7 @@ export class ProductService {
   async getManyProductsByIds(query): Promise<any> {
     return await getRepository(ProductEntity)
       .createQueryBuilder('products')
+      .leftJoinAndSelect('products.image', 'image')
       .where('products.id IN (:...ids)', {
         ids: query.filter,
       })
@@ -104,7 +103,7 @@ export class ProductService {
 
   async getProductById(id: string): Promise<ProductEntity> {
     return await this.productRepository.findOne(id, {
-      relations: ['categories'],
+      relations: ['categories', 'image'],
     });
   }
 
@@ -125,7 +124,7 @@ export class ProductService {
     userId: string,
   ): Promise<{ products: ProductEntity[] }> {
     const usersFavouriteProducts = await this.userRepository.findOne(userId, {
-      relations: ['favorites'],
+      relations: ['favorites', 'favorites.categories'],
     });
 
     return {

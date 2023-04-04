@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { getRepository, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
-import { UserEntity } from './user.entity';
+import { UserEntity } from './models/user.entity';
 import * as bcrypt from 'bcryptjs';
 import { CreateByRoleUserDto } from './dto/createByRoleUser.dto';
 import { PaginationParams } from './dto/paginationParams.dto';

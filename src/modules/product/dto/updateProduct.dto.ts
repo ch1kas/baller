@@ -1,4 +1,5 @@
-import { CategoryEntity } from 'src/modules/category/category.entity';
+import { CategoryEntity } from 'src/modules/category/models/category.entity';
+import { ImageEntity } from 'src/modules/filemanager/models/image.entity';
 
 export class UpdateProductDto {
   name?: string;
@@ -14,4 +15,6 @@ export class UpdateProductDto {
   letter_size?: string;
 
   categories?: CategoryEntity[];
+
+  image?: ImageEntity;
 }

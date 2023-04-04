@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
-import { CategoryEntity } from 'src/modules/category/category.entity';
+import { CategoryEntity } from 'src/modules/category/models/category.entity';
+import { ImageEntity } from 'src/modules/filemanager/models/image.entity';
 
 export class CreateProductDto {
   @IsNotEmpty()
@@ -21,4 +22,6 @@ export class CreateProductDto {
   letter_size?: string;
 
   categories?: CategoryEntity[];
+
+  image?: ImageEntity;
 }

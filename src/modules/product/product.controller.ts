@@ -16,7 +16,7 @@ import { AdminAuthGuard } from '../auth/guards/adminAuth.guard';
 import { CreateProductDto } from './dto/createProduct.dto';
 import { ProductResponseDto } from './dto/productResponse.dto';
 import { UpdateProductDto } from './dto/updateProduct.dto';
-import { ProductEntity } from './product.entity';
+import { ProductEntity } from './models/product.entity';
 import { ProductService } from './product.service';
 
 @Controller()

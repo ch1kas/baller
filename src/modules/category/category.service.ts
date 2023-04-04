@@ -3,16 +3,19 @@ import { InjectRepository } from '@nestjs/typeorm';
 import slugify from 'slugify';
 import { getRepository, Repository } from 'typeorm';
 import { PaginationParams } from '../user/dto/paginationParams.dto';
-import { CategoryEntity } from './category.entity';
+import { CategoryEntity } from './models/category.entity';
 import { CategoriesResponseDto } from './dto/categoryResponse.dto';
 import { CreateCategoryDto } from './dto/createCategory.dto';
 import { UpdateCategoryDto } from './dto/updateCategory.dto';
+import { ImageEntity } from '../filemanager/models/image.entity';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(CategoryEntity)
     private readonly categoryRepository: Repository<CategoryEntity>,
+    @InjectRepository(ImageEntity)
+    private readonly imageRepository: Repository<ImageEntity>,
   ) {}
 
   async createCategory(
@@ -22,14 +25,16 @@ export class CategoryService {
     category.slug = this.getSlug(createCategoryDto.name);
     category.name = createCategoryDto.name;
     category.description = createCategoryDto.description;
+    category.image = createCategoryDto.image;
     return this.categoryRepository.save(category);
   }
 
   async getCategories(
     query: PaginationParams,
   ): Promise<CategoriesResponseDto<CategoryEntity>> {
-    const queryBuilder =
-      getRepository(CategoryEntity).createQueryBuilder('categories');
+    const queryBuilder = getRepository(CategoryEntity)
+      .createQueryBuilder('categories')
+      .leftJoinAndSelect('categories.image', 'image');
 
     if (query.limit) {
       queryBuilder.limit(+query.limit);
@@ -59,8 +64,12 @@ export class CategoryService {
     updateCategoryDto: UpdateCategoryDto,
   ): Promise<CategoryEntity> {
     await this.isCategoryExist(id);
+    const category = await this.categoryRepository.findOne(id);
     if (updateCategoryDto.name) {
       updateCategoryDto.slug = this.getSlug(updateCategoryDto.name);
+    }
+    if (updateCategoryDto.image) {
+      await this.imageRepository.remove(category.image);
     }
     await this.categoryRepository.update(id, updateCategoryDto);
     return this.categoryRepository.findOne({ id });

@@ -11,6 +11,7 @@ import { AccessTokenAuthGuard } from './modules/auth/guards/accessTokenAuth.guar
 import { EmailModule } from './modules/email/email.module';
 import { CategoryModule } from './modules/category/category.module';
 import { ProductModule } from './modules/product/product.module';
+import { FilemanagerModule } from './modules/filemanager/filemanager.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ProductModule } from './modules/product/product.module';
     AuthModule,
     CategoryModule,
     ProductModule,
+    FilemanagerModule,
   ],
   controllers: [AppController],
   providers: [

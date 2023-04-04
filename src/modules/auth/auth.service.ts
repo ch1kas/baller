@@ -13,7 +13,7 @@ import { Role } from '../roles/enums/roles';
 import { CreateUserDto } from '../user/dto/createUser.dto';
 import { ResetPasswordDto } from '../user/dto/resetPassword.dto';
 import { SignInUserDto } from '../user/dto/signInUser.dto';
-import { UserEntity } from '../user/user.entity';
+import { UserEntity } from '../user/models/user.entity';
 import { UserService } from '../user/user.service';
 import { ExpiredAccessTokenEntity } from './models/expiredAccessTokens.entity';
 import { RefreshTokenEntity } from './models/refreshTokens.entity';
